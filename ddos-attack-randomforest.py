@@ -285,141 +285,7 @@ class Model:
         X = preprocessing.StandardScaler().fit(self.data).transform(self.data)
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(X, y, random_state=42, test_size=0.3)  
     
-    def LogisticRegression(self):
-        solvers = ['newton-cg', 'lbfgs', 'liblinear', 'sag', 'saga']
-
-        start_time = time.time()
-        results_lr = []
-        accuracy_list = []
-        for solver in solvers:
-            LR = LogisticRegression(C=0.03, solver=solver).fit(self.X_train, self.y_train)
-            predicted_lr = LR.predict(self.X_test)
-            accuracy_lr = accuracy_score(self.y_test, predicted_lr)
-            #print("Accuracy: %.2f%%" % (accuracy_lr * 100.0))
-            #print('################################################################')
-            results_lr.append({'solver' : solver, 'accuracy': str(round(accuracy_lr * 100, 2)) + "%", 
-                                  'Coefficients': {'W' : LR.coef_, 'b': LR.intercept_}})
-            
-            accuracy_list.append(accuracy_lr)
-       
-        solver_name = solvers[accuracy_list.index(max(accuracy_list))]
-        LR = LogisticRegression(C=0.03, solver=solver_name).fit(self.X_train,self.y_train)
-        predicted_lr = LR.predict(self.X_test)
-        accuracy_lr = accuracy_score(self.y_test, predicted_lr)
-        print("Accuracy: %.2f%%" % (accuracy_lr * 100.0), '\n')
-        print("########################################################################")
-        print('Best solver is : ', solver_name)
-        print("########################################################################")
-        print(classification_report(predicted_lr, self.y_test), '\n')
-        print("########################################################################")
-        print("--- %s seconds --- time for LogisticRegression" % (time.time() - start_time))
-        
-        
-    def SupportVectorMachine(self):
-        start_time = time.time()
-        accuracy_list = []
-        result_svm = []
-        kernels = ['linear', 'poly','rbf', 'sigmoid']
-        #kernels = ['rbf']
-        for kernel in kernels:
-            SVM = svm.SVC(kernel=kernel).fit(self.X_train, self.y_train)
-            predicted_svm = SVM.predict(self.X_test)
-            accuracy_svm = accuracy_score(self.y_test, predicted_svm)
-            result_svm.append({"kernel" : kernel, "accuracy": f"{round(accuracy_svm*100,2)}%"})
-            print("Accuracy: %.2f%%" % round((accuracy_svm * 100.0),2))
-            print('######################################################################')
-            accuracy_list.append(accuracy_svm)
-        
-        kernel_name = kernels[accuracy_list.index(max(accuracy_list))]
-        SVM = svm.SVC(kernel=kernel_name).fit(self.X_train, self.y_train)
-        predicted_svm = SVM.predict(self.X_test)
-        accuracy_svm = accuracy_score(self.y_test, predicted_svm)
-        print(f"Accuracy of SVM model {round(accuracy_svm,2)*100}%", '\n')
-        print("########################################################################")
-        print('best kernel is : ', kernel_name)
-        print("########################################################################")
-        print(classification_report(predicted_svm, self.y_test))
-        print("########################################################################")
-        print("--- %s seconds ---" % (time.time() - start_time))
-        
-    def KNearetsNeighbor(self):
-        start_time = time.time()
-        Ks = 12
-        accuracy_knn = np.zeros((Ks-1))
-        std_acc = np.zeros((Ks-1))
-        #print(accuracy_knn)
-        for n in range(1,Ks):
-
-            #Train Model and Predict  
-            neigh = KNeighborsClassifier(n_neighbors = n).fit(self.X_train,self.y_train)
-            yhat=neigh.predict(self.X_test)
-            accuracy_knn[n-1] = metrics.accuracy_score(self.y_test, yhat)
-
-
-            std_acc[n-1]=np.std(yhat==self.y_test)/np.sqrt(yhat.shape[0])
-
-        #print(accuracy_knn,'\n\n') # courseranyn ozinde tek osy gana jazylyp turdy
-        #print(std_acc)
-        #accuracy_knn[0] = 0
-        plt.figure(figsize=(10,6))
-        plt.plot(range(1,Ks),accuracy_knn,'g')
-        plt.fill_between(range(1,Ks),accuracy_knn - 1 * std_acc,accuracy_knn + 1 * std_acc, alpha=0.10)
-        plt.fill_between(range(1,Ks),accuracy_knn - 3 * std_acc,accuracy_knn + 3 * std_acc, alpha=0.10,color="green")
-        plt.legend(('Accuracy ', '+/- 1xstd','+/- 3xstd'))
-        plt.ylabel('Accuracy ')
-        plt.xlabel('Number of Neighbors (K)')
-        plt.tight_layout()
-        plt.show()
-        
-        
-        knnc = KNeighborsClassifier()
-        knnc_search = GridSearchCV(knnc, param_grid={'n_neighbors': [3, 5, 10],
-                                             'weights': ['uniform', 'distance'],
-                                             'metric': ['euclidean', 'manhattan']},
-                           n_jobs=-1, cv=3, scoring='accuracy', verbose=2)
-        
-        knnc_search.fit(self.X_train, self.y_train)
-        #print(knnc_search.best_params_)
-        #print(knnc_search.best_score_)
-        n_neighbors = knnc_search.best_params_['n_neighbors']
-        weights = knnc_search.best_params_['weights']
-        metric = knnc_search.best_params_['metric']
-        KNN = KNeighborsClassifier(n_neighbors=n_neighbors, metric=metric, weights=weights).fit(self.X_train,self.y_train)
-        
-        predicted_knn = KNN.predict(self.X_test)
-        accuracy_knn = metrics.accuracy_score(self.y_test, predicted_knn)
-        print(f"Accuracy of KNN model {round(accuracy_knn,2)*100}%", '\n')
-        print("########################################################################")
-        print(classification_report(predicted_knn, self.y_test))
-        print("########################################################################")
-        print("--- %s seconds ---" % (time.time() - start_time))
-        
-    def DecisionTree(self):
-        start_time = time.time()
-        tree = DecisionTreeClassifier()
-        dt_search = GridSearchCV(tree, param_grid={'criterion' : ['gini', 'entropy'],
-                                           'max_depth' : [2,3,4,5,6,7,8, 9, 10],
-                                           'max_leaf_nodes' : [2,3,4,5,6,7,8,9,10, 11]},
-                           n_jobs=-1, cv=5, scoring='accuracy', verbose=2)
-        
-        dt_search.fit(self.X_train, self.y_train)
-        
-        criterion = dt_search.best_params_['criterion']
-        max_depth = dt_search.best_params_['max_depth']
-        max_leaf_nodes = dt_search.best_params_['max_leaf_nodes']
-        
-        dtree = DecisionTreeClassifier(criterion=criterion, 
-                                       max_depth=max_depth, 
-                                       max_leaf_nodes=max_leaf_nodes).fit(self.X_train, self.y_train)
-        predicted_dt = dtree.predict(self.X_test)
-        accuracy_dt = metrics.accuracy_score(self.y_test, predicted_dt)
-        print(f"criterion: {criterion}, max depth: {max_depth}, max_leaf: {max_leaf_nodes}")
-        print(f"The Accuracy is : {round(accuracy_dt * 100,2)}%")
-        print("########################################################################")
-        print(classification_report(predicted_dt, self.y_test))
-        print("########################################################################")
-        
-        print("--- %s seconds ---" % (time.time() - start_time))
+    
     
     def RandomForest(self):
         start_time = time.time()
@@ -442,10 +308,6 @@ class Model:
         print("--- %s seconds ---" % (time.time() - start_time))
 
 """
-Decision Tree works Well
-Suppert Vector Machine works well
-Logistic Regression works well
-KNN works well
 Random Forest works well
 """
 
@@ -501,7 +363,5 @@ M = Model(X)
 # In[30]:
 
 
-M.LogisticRegression()
-
 M.RandomForest()
-M.DecisionTree()
+
