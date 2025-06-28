@@ -33,8 +33,8 @@ The dataset used contains labeled network traffic representing both normal and D
 
 1. Clone the repo:
    ```bash
-   git clone https://github.com/yourusername/ddos-ml-detection.git
-   cd ddos-ml-detection
+   git clone https://github.com/mohammedibrahimshawon/DDOS_Attack_models.git
+   cd DDOS_Attack_models
    ```
 
 2. Install dependencies:
@@ -61,6 +61,14 @@ The dataset used contains labeled network traffic representing both normal and D
 - ROC curves plotted for all models
 - Feature importance chart (Random Forest)
 
+## 🔗 Publication
+
+This project is based on the following research work:
+
+- **Title**: DDoS Attack Detection Using Machine Learning Algorithm  
+- **DOI**: [10.13140/RG.2.2.22521.38247](https://doi.org/10.13140/RG.2.2.22521.38247)  
+- **ResearchGate**: [View Publication](https://www.researchgate.net/publication/393121891_DDOS_ATTACK_DETECTION_USING_MACHINE_LEARNING_ALGORITHM?channel=doi&linkId=685fe98db991270ef3ffe7e1&showFulltext=true)
+
 ## 🧪 Future Work
 
 - Implement deep learning and unsupervised models  
@@ -73,7 +81,6 @@ This project is licensed under the MIT License. See `LICENSE` for details.
 
 ## 🙇‍♂️ Author
 
-
 Email: mohammedibrahimshawonaiub@gmail.com  
-LinkedIn:  https://www.linkedin.com/in/mohammed-ibrahim-shawon-a545131b0/
+LinkedIn:  https://www.linkedin.com/in/mohammed-ibrahim-shawon-a545131b0/  
 GitHub: https://github.com/mohammedibrahimshawon
